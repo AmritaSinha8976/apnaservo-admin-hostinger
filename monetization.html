@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Partner Monetization — ApnaServo Admin</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .sub-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sub-table th, .sub-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .sub-table th { font-weight: 600; color: var(--muted); font-size: 12px; }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .filters .form-group { margin-bottom: 0; }
+    .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <span class="topbar-logo">ApnaServo Admin</span>
+  <span id="topbarUser" style="font-size:13px;color:#64748b"></span>
+  <button class="btn-link" onclick="window.location.href='services.html'">Services</button>
+  <button class="btn-link" onclick="logout()">Sign out</button>
+</header>
+
+<main class="page">
+
+  <!-- ── Config values ── -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-header">
+      <span class="card-title">Monetization Settings</span>
+      <button class="btn btn-primary btn-sm" id="saveConfigBtn">Save Settings</button>
+    </div>
+    <div class="card-body">
+      <div id="configAlert" class="alert hidden"></div>
+      <div class="config-grid">
+        <div class="form-group">
+          <label for="fSubscription">Monthly subscription (₹)</label>
+          <input type="number" id="fSubscription" min="0" step="1" placeholder="299">
+          <div class="form-hint">Flat fee for non-cleaning partners.</div>
+        </div>
+        <div class="form-group">
+          <label for="fCommission">Cleaning commission (%)</label>
+          <input type="number" id="fCommission" min="0" max="100" step="1" placeholder="25">
+          <div class="form-hint">Platform cut per completed cleaning job.</div>
+        </div>
+        <div class="form-group">
+          <label for="fTrial">Free trial (days)</label>
+          <input type="number" id="fTrial" min="0" step="1" placeholder="10">
+          <div class="form-hint">Free launch window after signup.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Partner subscriptions ── -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-header">
+      <span class="card-title">Partner Subscriptions</span>
+      <button class="btn btn-secondary btn-sm" id="refreshBtn">Refresh</button>
+    </div>
+    <div class="card-body">
+      <div id="listAlert" class="alert hidden"></div>
+      <div class="filters" style="margin-bottom:14px">
+        <div class="form-group">
+          <label for="fSearch">Partner code</label>
+          <input type="text" id="fSearch" placeholder="e.g. ASP123ABC">
+        </div>
+        <div class="form-group">
+          <label for="fModel">Model</label>
+          <select id="fModel">
+            <option value="">All</option>
+            <option value="subscription">Subscription</option>
+            <option value="commission">Commission (cleaning)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="fStatus">Status</label>
+          <select id="fStatus">
+            <option value="">All</option>
+            <option value="trial">Trial</option>
+            <option value="active">Active</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" id="applyFiltersBtn">Apply</button>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="sub-table">
+          <thead>
+            <tr>
+              <th>Partner</th>
+              <th>Model</th>
+              <th>Status</th>
+              <th>Trial left</th>
+              <th>Expires</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subBody">
+            <tr><td colspan="6" style="color:var(--muted)">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ── Override modal ── -->
+<div id="modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Override subscription</span>
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalAlert" class="alert hidden"></div>
+      <p id="modalPartner" style="font-size:13px;color:var(--muted);margin-bottom:14px"></p>
+
+      <div class="form-group">
+        <label for="oExtendMonths">Extend subscription (months)</label>
+        <input type="number" id="oExtendMonths" min="0" step="1" placeholder="1">
+        <div class="form-hint">Adds months from the current expiry (or now).</div>
+      </div>
+      <div class="form-group">
+        <label for="oExtendTrialDays">Extend free trial (days)</label>
+        <input type="number" id="oExtendTrialDays" min="0" step="1" placeholder="0">
+        <div class="form-hint">Adds days to the free launch window.</div>
+      </div>
+      <div class="form-group">
+        <label for="oExpiresAt">Set subscription expiry (date)</label>
+        <input type="date" id="oExpiresAt">
+        <div class="form-hint">Overrides the expiry directly. Leave blank to skip.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="applyOverrideBtn">Apply</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="admin.js"></script>
+<script src="monetization.js"></script>
+</body>
+</html>
